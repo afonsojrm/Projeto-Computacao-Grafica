@@ -10,11 +10,23 @@ let camera, scene, renderer;
 let controls, water, sun;
 const loader = new GLTFLoader();
 
-let nave;
-loader.load("./assets/nave/scene.gltf", function (gltf) {
+loader.load("./assets/namek/scene.gltf", function (gltf) {
   const model = gltf.scene;
   scene.add(model);
-  nave = model;
+  gltf.scene.scale.set(50,50,50);
+  gltf.scene.position.set(120,1.2,-1900);
+  gltf.scene.rotation.y = 6.5;
+ 
+});
+
+
+loader.load("./assets/navedbz/scene.gltf", function (gltf) {
+  const model = gltf.scene;
+  scene.add(model);
+
+  gltf.scene.scale.set(5,5,5);
+  gltf.scene.position.set(90,20,-50);
+  gltf.scene.rotation.y = 6.5;
 });
 init();
 animate();
@@ -24,7 +36,7 @@ function init() {
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.35;
+  renderer.toneMappingExposure = 0.28;
   document.body.appendChild(renderer.domElement);
 
   scene = new THREE.Scene();
@@ -33,7 +45,7 @@ function init() {
     55,
     window.innerWidth / window.innerHeight,
     1,
-    20000
+    200000
   );
   camera.position.set(30, 30, 100);
 
@@ -41,11 +53,11 @@ function init() {
 
   // Water
 
-  const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
+  const waterGeometry = new THREE.PlaneGeometry(100000, 100000);
 
   water = new Water(waterGeometry, {
-    textureWidth: 512,
-    textureHeight: 512,
+    textureWidth: 1024,
+    textureHeight: 1024,
     waterNormals: new THREE.TextureLoader().load(
       "assets/waternormals.jpg",
       function (texture) {
@@ -53,8 +65,8 @@ function init() {
       }
     ),
     sunDirection: new THREE.Vector3(),
-    sunColor: 0xffffff,
-    waterColor: 0x001e0f,
+    sunColor: 0x00ff00,
+    waterColor: 0x00ff00,
     distortionScale: 3.0,
     fog: scene.fog !== undefined,
   });
