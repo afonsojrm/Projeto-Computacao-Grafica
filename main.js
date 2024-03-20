@@ -1,20 +1,21 @@
-import './style.css'
-import * as THREE from 'three';
+import "./style.css";
+import * as THREE from "three";
 
-
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { Water } from 'three/examples/jsm/objects/Water.js';
-import { Sky } from 'three/examples/jsm/objects/Sky.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { Water } from "three/examples/jsm/objects/Water.js";
+import { Sky } from "three/examples/jsm/objects/Sky.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 let camera, scene, renderer;
 let controls, water, sun;
-const loader = new GLTFLoader;
-loader.load("assets/boat/scene.gltf",function (gltf) {
-  scene.add(glft.scene)
-  gltf.scene.scale.set(3,3,3)
-  gltf.scene.position.set(5,13,50)
-})
+const loader = new GLTFLoader();
+
+let nave;
+loader.load("./assets/nave/scene.gltf", function (gltf) {
+  const model = gltf.scene;
+  scene.add(model);
+  nave = model;
+});
 init();
 animate();
 
