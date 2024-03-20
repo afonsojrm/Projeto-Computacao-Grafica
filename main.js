@@ -10,7 +10,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 let camera, scene, renderer;
 let controls, water, sun;
 const loader = new GLTFLoader;
-loader.load("animacao-3d/assets/boat/scene.gltf",function (gltf) {
+loader.load("assets/boat/scene.gltf",function (gltf) {
   scene.add(glft.scene)
   gltf.scene.scale.set(3,3,3)
   gltf.scene.position.set(5,13,50)
