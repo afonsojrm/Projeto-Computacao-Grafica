@@ -3,31 +3,45 @@ import * as THREE from "three";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Water } from "three/examples/jsm/objects/Water.js";
-import { Sky } from "three/examples/jsm/objects/Sky.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 let camera, scene, renderer;
-let controls, water, sun;
+let controls, water;
 const loader = new GLTFLoader();
+
+loader.load("./assets/cloud/scene.gltf", function (gltf) {
+  const model = gltf.scene;
+  scene.add(model);
+  gltf.scene.scale.set(1000, 1000, 1000);
+  gltf.scene.position.set(1500, 10000, -100000);
+});
 
 loader.load("./assets/namek/scene.gltf", function (gltf) {
   const model = gltf.scene;
   scene.add(model);
-  gltf.scene.scale.set(50,50,50);
-  gltf.scene.position.set(120,1.2,-1900);
-  gltf.scene.rotation.y = 6.5;
- 
+  gltf.scene.scale.set(50, 50, 50);
+  gltf.scene.position.set(500, 1.2, -1900);
 });
 
+class navedbz {
+  constructor() {
+    loader.load("./assets/navedbz/scene.gltf", (gltf) => {
+      scene.add(gltf.scene);
 
-loader.load("./assets/navedbz/scene.gltf", function (gltf) {
-  const model = gltf.scene;
-  scene.add(model);
+      gltf.scene.scale.set(6, 6, 6);
+      gltf.scene.position.set(40, 20, -50);
+      gltf.scene.rotation.y = 1.5;
+      this.nave = gltf.scene;
+    });
+  }
+  update() {
+    if (this.nave) {
+      this.nave.rotation.y += 0.01;
+    }
+  }
+}
 
-  gltf.scene.scale.set(5,5,5);
-  gltf.scene.position.set(90,20,-50);
-  gltf.scene.rotation.y = 6.5;
-});
+const nave = new navedbz();
 init();
 animate();
 
@@ -35,8 +49,9 @@ function init() {
   renderer = new THREE.WebGLRenderer();
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000, -100);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.28;
+  renderer.toneMappingExposure = 0.3;
   document.body.appendChild(renderer.domElement);
 
   scene = new THREE.Scene();
@@ -48,8 +63,6 @@ function init() {
     200000
   );
   camera.position.set(30, 30, 100);
-
-  sun = new THREE.Vector3();
 
   // Water
 
@@ -64,59 +77,20 @@ function init() {
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       }
     ),
-    sunDirection: new THREE.Vector3(),
-    sunColor: 0x00ff00,
-    waterColor: 0x00ff00,
-    distortionScale: 3.0,
-    fog: scene.fog !== undefined,
+    sunDirection: new THREE.Vector3(0, 10, 500),
+    sunColor: 0x389363,
+    waterColor: 0x389363,
+    distortionScale: 6.0,
+    reflectivity: 0.8,
   });
 
   water.rotation.x = -Math.PI / 2;
 
   scene.add(water);
 
-  // Skybox
-
-  const sky = new Sky();
-  sky.scale.setScalar(10000);
-  scene.add(sky);
-
-  const skyUniforms = sky.material.uniforms;
-
-  skyUniforms["turbidity"].value = 10;
-  skyUniforms["rayleigh"].value = 2;
-  skyUniforms["mieCoefficient"].value = 0.005;
-  skyUniforms["mieDirectionalG"].value = 0.8;
-
-  const parameters = {
-    elevation: 2,
-    azimuth: 180,
-  };
-
-  const pmremGenerator = new THREE.PMREMGenerator(renderer);
-  const sceneEnv = new THREE.Scene();
-
-  let renderTarget;
-
-  function updateSun() {
-    const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);
-    const theta = THREE.MathUtils.degToRad(parameters.azimuth);
-
-    sun.setFromSphericalCoords(1, phi, theta);
-
-    sky.material.uniforms["sunPosition"].value.copy(sun);
-    water.material.uniforms["sunDirection"].value.copy(sun).normalize();
-
-    if (renderTarget !== undefined) renderTarget.dispose();
-
-    sceneEnv.add(sky);
-    renderTarget = pmremGenerator.fromScene(sceneEnv);
-    scene.add(sky);
-
-    scene.environment = renderTarget.texture;
-  }
-
-  updateSun();
+  let light = new THREE.DirectionalLight(0xffffff, 2);
+  light.position.set(3, 5, 8);
+  scene.add(light, new THREE.AmbientLight(0xffffff, 1));
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.maxPolarAngle = Math.PI * 0.495;
@@ -124,8 +98,6 @@ function init() {
   controls.minDistance = 40.0;
   controls.maxDistance = 200.0;
   controls.update();
-
-  const waterUniforms = water.material.uniforms;
 
   window.addEventListener("resize", onWindowResize);
 }
@@ -140,10 +112,11 @@ function onWindowResize() {
 function animate() {
   requestAnimationFrame(animate);
   render();
+  nave.update();
 }
 
 function render() {
-  water.material.uniforms["time"].value += 0.3 / 60.0;
+  water.material.uniforms["time"].value += 0.5 / 60.0;
 
   renderer.render(scene, camera);
 }
