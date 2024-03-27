@@ -9,12 +9,17 @@ let camera, scene, renderer;
 let controls, water;
 const loader = new GLTFLoader();
 
-loader.load("./assets/cloud/scene.gltf", function (gltf) {
+function random(min,max) {
+  return Math.random () * (max-min) + min;
+  
+}
+
+/*loader.load("./assets/cloud/scene.gltf", function (gltf) {
   const model = gltf.scene;
   scene.add(model);
   gltf.scene.scale.set(1000, 1000, 1000);
   gltf.scene.position.set(1500, 10000, -100000);
-});
+});*/
 
 loader.load("./assets/namek/scene.gltf", function (gltf) {
   const model = gltf.scene;
@@ -54,27 +59,44 @@ class navedbz {
 
 const nave = new navedbz();
 
-class nuvem{
-  constructor(){
-    loader.load("./assets/cloud/scene.gltf", (gltf) => {
-      
-      scene.add(gltf.scene);
-      gltf.scene.scale.set(1000, 1000, 1000);
-      gltf.scene.position.set(1500, 10000, -100000);
-    });
+class Nuvem{
+  constructor(_scene){
+    scene.add( _scene )
+    _scene.scale.set(20, 20, 20)
+    if(Math.random() > .2){
+      _scene.position.set(random(-7500, 7500), 1000, random(-7500, 7500))
+    }else{
+      _scene.position.set(random(-1500, 1500), 250, random(-1500, 1500))
+    }
 
+    this.Nuvem = _scene
   }
 }
+async function loadModel(url){
+  return new Promise((resolve) => {
+    loader.load(url, (gltf) => {
+      resolve(gltf.scene)
+    })
+  })
+}
 
-let cloud = new nuvem()
+let naveModel = null
+async function createNuvem(){
+  if(!naveModel){
+    naveModel = await loadModel("assets/cloud/scene.gltf")
+  }
+  return new Nuvem(naveModel.clone())
+}
 
+let nuvens = []
+const NUVEM_COUNT = 100
 
 
 
 init();
 animate();
 
-function init() {
+async function init() {
   renderer = new THREE.WebGLRenderer();
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -117,6 +139,10 @@ function init() {
 
   scene.add(water);
 
+  /*const pmremGenerator = new THREE.PMREMGenerator (renderer);
+  
+  scene.environment = pmremGenerator.fromScene( water ).texture;*/
+
   let light = new THREE.DirectionalLight(0xffffff, 2);
   light.position.set(3, 5, 8);
   scene.add(light, new THREE.AmbientLight(0xffffff, 1));
@@ -127,6 +153,12 @@ function init() {
   controls.minDistance = 0.0;
   controls.maxDistance = 500.0;
   controls.update();
+
+ 
+  for(let i = 0; i < NUVEM_COUNT; i++){
+    const nuvem = await createNuvem()
+    nuvens.push(nuvem)
+  }
 
   window.addEventListener("resize", onWindowResize);
   window.addEventListener("keydown", function (e) {
