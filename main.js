@@ -32,16 +32,45 @@ class navedbz {
       gltf.scene.position.set(40, 20, -50);
       gltf.scene.rotation.y = 1.5;
       this.nave = gltf.scene;
+      this.speed = {
+        vel: 0,
+        rot: 0,
+      };
     });
   }
+
+  stop() {
+    this.speed.vel = 0;
+    this.speed.rot = 0;
+  }
+
   update() {
     if (this.nave) {
-      this.nave.rotation.y += 0.01;
+      this.nave.rotation.y += this.speed.rot;
+      this.nave.translateX(this.speed.vel);
     }
   }
 }
 
 const nave = new navedbz();
+
+class nuvem{
+  constructor(){
+    loader.load("./assets/cloud/scene.gltf", (gltf) => {
+      
+      scene.add(gltf.scene);
+      gltf.scene.scale.set(1000, 1000, 1000);
+      gltf.scene.position.set(1500, 10000, -100000);
+    });
+
+  }
+}
+
+let cloud = new nuvem()
+
+
+
+
 init();
 animate();
 
@@ -49,7 +78,7 @@ function init() {
   renderer = new THREE.WebGLRenderer();
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x000000, -100);
+  renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.3;
   document.body.appendChild(renderer.domElement);
@@ -77,9 +106,9 @@ function init() {
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       }
     ),
-    sunDirection: new THREE.Vector3(0, 10, 500),
-    sunColor: 0x389363,
-    waterColor: 0x389363,
+    sunDirection: new THREE.Vector3(0, 10, 200),
+    sunColor: 0x4e9b62,
+    waterColor: 0x4e9b62,
     distortionScale: 6.0,
     reflectivity: 0.8,
   });
@@ -95,11 +124,28 @@ function init() {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.maxPolarAngle = Math.PI * 0.495;
   controls.target.set(0, 10, 0);
-  controls.minDistance = 40.0;
-  controls.maxDistance = 200.0;
+  controls.minDistance = 0.0;
+  controls.maxDistance = 500.0;
   controls.update();
 
   window.addEventListener("resize", onWindowResize);
+  window.addEventListener("keydown", function (e) {
+    if (e.key == "ArrowUp") {
+      nave.speed.vel = -1;
+    }
+    if (e.key == "ArrowDown") {
+      nave.speed.vel = 1;
+    }
+    if (e.key == "ArrowRight") {
+      nave.speed.rot = -0.03;
+    }
+    if (e.key == "ArrowLeft") {
+      nave.speed.rot = -0.03;
+    }
+  });
+  window.addEventListener("keyup", function (e) {
+    nave.stop()
+  })
 }
 
 function onWindowResize() {
