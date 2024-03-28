@@ -34,11 +34,12 @@ class navedbz {
       scene.add(gltf.scene);
 
       gltf.scene.scale.set(6, 6, 6);
-      gltf.scene.position.set(40, 20, -50);
-      gltf.scene.rotation.y = 1.5;
+      gltf.scene.position.set(20, 30, 20);
+      gltf.scene.rotation.y = 3;
       this.nave = gltf.scene;
       this.speed = {
         vel: 0,
+        yVel: 0,
         rot: 0,
       };
     });
@@ -46,13 +47,15 @@ class navedbz {
 
   stop() {
     this.speed.vel = 0;
+    this.speed.yVel = 0;
     this.speed.rot = 0;
   }
 
   update() {
     if (this.nave) {
       this.nave.rotation.y += this.speed.rot;
-      this.nave.translateX(this.speed.vel);
+      this.nave.translateZ(this.speed.vel);
+      this.nave.position.y += this.speed.yVel;
     }
   }
 }
@@ -115,7 +118,6 @@ async function init() {
   );
   camera.position.set(30, 30, 100);
 
-  // Water
 
   const waterGeometry = new THREE.PlaneGeometry(100000, 100000);
 
@@ -139,15 +141,13 @@ async function init() {
 
   scene.add(water);
 
-  /*const pmremGenerator = new THREE.PMREMGenerator (renderer);
-  
-  scene.environment = pmremGenerator.fromScene( water ).texture;*/
 
   let light = new THREE.DirectionalLight(0xffffff, 2);
   light.position.set(3, 5, 8);
   scene.add(light, new THREE.AmbientLight(0xffffff, 1));
 
   controls = new OrbitControls(camera, renderer.domElement);
+  
   controls.maxPolarAngle = Math.PI * 0.495;
   controls.target.set(0, 10, 0);
   controls.minDistance = 0.0;
@@ -162,17 +162,23 @@ async function init() {
 
   window.addEventListener("resize", onWindowResize);
   window.addEventListener("keydown", function (e) {
-    if (e.key == "ArrowUp") {
-      nave.speed.vel = -1;
-    }
-    if (e.key == "ArrowDown") {
+    if (e.key == "w") {
       nave.speed.vel = 1;
     }
-    if (e.key == "ArrowRight") {
+    if (e.key == "s") {
+      nave.speed.vel = -1;
+    }
+    if (e.key == "a") {
+      nave.speed.rot = 0.03;
+    }
+    if (e.key == "d") {
       nave.speed.rot = -0.03;
     }
-    if (e.key == "ArrowLeft") {
-      nave.speed.rot = -0.03;
+    if (e.key == "ArrowUp") {
+      nave.speed.yVel = 0.5; 
+    }
+    if (e.key == "ArrowDown") {
+      nave.speed.yVel = -0.5; 
     }
   });
   window.addEventListener("keyup", function (e) {
