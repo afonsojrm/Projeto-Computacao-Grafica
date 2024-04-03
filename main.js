@@ -80,12 +80,12 @@ async function loadModel(url) {
   });
 }
 
-let naveModel = null;
+let nuvemModel = null;
 async function createNuvem() {
-  if (!naveModel) {
-    naveModel = await loadModel("assets/cloud/scene.gltf");
+  if (!nuvemModel) {
+    nuvemModel = await loadModel("assets/cloud/scene.gltf");
   }
-  return new Nuvem(naveModel.clone());
+  return new Nuvem(nuvemModel.clone());
 }
 
 let nuvens = [];
@@ -184,6 +184,6 @@ function animate() {
 }
 
 function render() {
-  water.material.uniforms["time"].value += 1 / 60.0;
+  water.material.uniforms["time"].value += 0.5 / 60.0;
   renderer.render(scene, camera);
 }
