@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Water } from "three/examples/jsm/objects/Water.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
@@ -22,6 +21,12 @@ loader.load("./assets/namek/scene.gltf", function (gltf) {
   scene.add(model);
   gltf.scene.scale.set(50, 50, 50);
   gltf.scene.position.set(500, 1.2, -1900);
+});
+loader.load("./assets/esfera/scene.gltf", function (gltf) {
+  const model = gltf.scene;
+  scene.add(model);
+  gltf.scene.scale.set(400, 400, 400);
+  gltf.scene.position.set(500, 85 , -1900);
 });
 
 class navedbz {
@@ -52,11 +57,26 @@ class navedbz {
       this.nave.rotation.y += this.speed.rot;
       this.nave.translateZ(this.speed.vel);
       this.nave.position.y += this.speed.yVel;
-      cameraTarget.position.copy(this.nave.position);
-      camera.lookAt(this.nave.position);
+      camera.position.copy(this.nave.position)
+      var c = new THREE.Vector3(0,0,0);
+      var d = new THREE.Vector3(0,0,0);
+      this.nave.getWorldDirection(c);
+      c.normalize();
+      c.multiplyScalar(16);
+      camera.position.sub(c);
+      camera.translateY(5);
+      camera.translateZ(10)
+      d.copy(this.nave.position);
+      c.normalize();
+      c.multiplyScalar(4);
+      d.add(c);
+      camera.lookAt(d);
     }
   }
 }
+
+
+
 const nave = new navedbz();
 
 class Nuvem {
@@ -112,13 +132,6 @@ async function init() {
   renderer.toneMappingExposure = 0.3;
   document.body.appendChild(renderer.domElement);
 
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.maxPolarAngle = Math.PI * 0.495;
-  controls.target.set(0, 0, 0);
-  controls.minDistance = 20.0;
-  controls.maxDistance = 2000.0;
-  controls.update();
-
   const waterGeometry = new THREE.PlaneGeometry(100000, 100000);
 
   water = new Water(waterGeometry, {
@@ -149,6 +162,7 @@ async function init() {
     nuvens.push(nuvem);
   }
 
+
   window.addEventListener("resize", onWindowResize);
   window.addEventListener("keydown", function (e) {
     if (e.key == "w") {
@@ -169,6 +183,7 @@ async function init() {
     if (e.key == "ArrowDown") {
       nave.speed.yVel = -0.5;
     }
+
   });
   window.addEventListener("keyup", function (e) {
     nave.stop();
@@ -180,6 +195,7 @@ function onWindowResize() {}
 function animate() {
   requestAnimationFrame(animate);
   render();
+  renderer.render(scene,camera);
   nave.update();
 }
 
