@@ -8,7 +8,6 @@ let camera, scene, renderer;
 let controls, water;
 const loader = new GLTFLoader();
 
-
 let cameraTarget = new THREE.Object3D();
 cameraTarget.position.set(0, 60, 80);
 
@@ -26,7 +25,7 @@ loader.load("./assets/esfera/scene.gltf", function (gltf) {
   const model = gltf.scene;
   scene.add(model);
   gltf.scene.scale.set(400, 400, 400);
-  gltf.scene.position.set(500, 85 , -1900);
+  gltf.scene.position.set(500, 85, -1900);
 });
 
 class navedbz {
@@ -56,16 +55,21 @@ class navedbz {
     if (this.nave) {
       this.nave.rotation.y += this.speed.rot;
       this.nave.translateZ(this.speed.vel);
-      this.nave.position.y += this.speed.yVel;
-      camera.position.copy(this.nave.position)
-      var c = new THREE.Vector3(0,0,0);
-      var d = new THREE.Vector3(0,0,0);
+      if (this.nave.position.y + this.speed.yVel >= 6) {
+        this.nave.position.y += this.speed.yVel;
+      } else {
+        this.nave.position.y = 6; 
+        this.speed.yVel = 0; 
+      }
+      camera.position.copy(this.nave.position);
+      var c = new THREE.Vector3(0, 0, 0);
+      var d = new THREE.Vector3(0, 0, 0);
       this.nave.getWorldDirection(c);
       c.normalize();
       c.multiplyScalar(16);
       camera.position.sub(c);
       camera.translateY(5);
-      camera.translateZ(10)
+      camera.translateZ(10);
       d.copy(this.nave.position);
       c.normalize();
       c.multiplyScalar(4);
@@ -74,8 +78,6 @@ class navedbz {
     }
   }
 }
-
-
 
 const nave = new navedbz();
 
@@ -162,7 +164,6 @@ async function init() {
     nuvens.push(nuvem);
   }
 
-
   window.addEventListener("resize", onWindowResize);
   window.addEventListener("keydown", function (e) {
     if (e.key == "w") {
@@ -183,10 +184,17 @@ async function init() {
     if (e.key == "ArrowDown") {
       nave.speed.yVel = -0.5;
     }
-
   });
   window.addEventListener("keyup", function (e) {
-    nave.stop();
+    if (e.key === "w" || e.key === "s") {
+      nave.speed.vel = 0;
+    }
+    if (e.key === "a" || e.key === "d") {
+      nave.speed.rot = 0;
+    }
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      nave.speed.yVel = 0;
+    }
   });
 }
 
@@ -195,7 +203,7 @@ function onWindowResize() {}
 function animate() {
   requestAnimationFrame(animate);
   render();
-  renderer.render(scene,camera);
+  renderer.render(scene, camera);
   nave.update();
 }
 
