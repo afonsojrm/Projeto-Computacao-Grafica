@@ -5,7 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import "./style.css";
 
 let camera, scene, renderer;
-let controls, water;
+let water;
 const loader = new GLTFLoader();
 
 let cameraTarget = new THREE.Object3D();
@@ -19,13 +19,13 @@ loader.load("./assets/namek/scene.gltf", function (gltf) {
   const model = gltf.scene;
   scene.add(model);
   gltf.scene.scale.set(50, 50, 50);
-  gltf.scene.position.set(500, 1.2, -1900);
+  gltf.scene.position.set(500, 1.2, -2900);
 });
 loader.load("./assets/esfera/scene.gltf", function (gltf) {
   const model = gltf.scene;
   scene.add(model);
   gltf.scene.scale.set(400, 400, 400);
-  gltf.scene.position.set(500, 85, -1900);
+  gltf.scene.position.set(500, 85, -2900);
 });
 
 class navedbz {
@@ -58,8 +58,8 @@ class navedbz {
       if (this.nave.position.y + this.speed.yVel >= 6) {
         this.nave.position.y += this.speed.yVel;
       } else {
-        this.nave.position.y = 6; 
-        this.speed.yVel = 0; 
+        this.nave.position.y = 6;
+        this.speed.yVel = 0;
       }
       camera.position.copy(this.nave.position);
       var c = new THREE.Vector3(0, 0, 0);
@@ -94,6 +94,20 @@ class Nuvem {
     this.Nuvem = _scene;
   }
 }
+
+class Ilha {
+  constructor(_scene) {
+    scene.add(_scene);
+    _scene.scale.set(20, 20, 20);
+    if (Math.random() > 0.2) {
+      _scene.position.set(random(-7500, 7500), 1.2, random(-7500, 7500));
+    } else {
+      _scene.position.set(random(-1500, 1500), 1.2, random(-1500, 1500));
+    }
+
+    this.Ilha = _scene;
+  }
+}
 async function loadModel(url) {
   return new Promise((resolve) => {
     loader.load(url, (gltf) => {
@@ -109,6 +123,16 @@ async function createNuvem() {
   }
   return new Nuvem(nuvemModel.clone());
 }
+let ilhaModel = null;
+async function createIlha() {
+  if (!ilhaModel) {
+    ilhaModel = await loadModel("assets/namek/scene.gltf");
+  }
+  return new Ilha(ilhaModel.clone());
+}
+
+let ilhas = [];
+const ILHA_COUNT = 25;
 
 let nuvens = [];
 const NUVEM_COUNT = 100;
@@ -162,6 +186,10 @@ async function init() {
   for (let i = 0; i < NUVEM_COUNT; i++) {
     const nuvem = await createNuvem();
     nuvens.push(nuvem);
+  }
+  for (let i = 0; i < ILHA_COUNT; i++) {
+    const ilha = await createIlha();
+    ilhas.push(ilha);
   }
 
   window.addEventListener("resize", onWindowResize);
