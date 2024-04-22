@@ -8,9 +8,6 @@ let camera, scene, renderer;
 let water;
 const loader = new GLTFLoader();
 
-let cameraTarget = new THREE.Object3D();
-cameraTarget.position.set(0, 60, 80);
-
 function random(min, max) {
   return Math.random() * (max - min) + min;
 }
@@ -52,6 +49,7 @@ class navedbz {
   }
 
   update() {
+    //limitação no eixo y
     if (this.nave) {
       this.nave.rotation.y += this.speed.rot;
       this.nave.translateZ(this.speed.vel);
@@ -61,6 +59,7 @@ class navedbz {
         this.nave.position.y = 6;
         this.speed.yVel = 0;
       }
+      //Introducao da camera em terceira pessoa
       camera.position.copy(this.nave.position);
       var c = new THREE.Vector3(0, 0, 0);
       var d = new THREE.Vector3(0, 0, 0);
@@ -95,6 +94,7 @@ class Nuvem {
   }
 }
 
+//criacao da classe ilha usando a mesma logica de geraçao randomica das nuvens
 class Ilha {
   constructor(_scene) {
     scene.add(_scene);
@@ -213,6 +213,7 @@ async function init() {
       nave.speed.yVel = -0.5;
     }
   });
+  //mudanca nas condicionais, melhorando a dinamica de movimentacao
   window.addEventListener("keyup", function (e) {
     if (e.key === "w" || e.key === "s") {
       nave.speed.vel = 0;
